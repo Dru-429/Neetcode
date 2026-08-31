@@ -1,0 +1,12 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"name": "Leetcode",
+			"path": "../100xDev/Leetcode"
+		}
+	],
+	"settings": {}
+}
