@@ -18,11 +18,15 @@ public:
         }
 
         for (int i=0; i<nums.size(); i++) {
-            for (int j=0; j<nums.size(); j++) {
-                if ( i != j && num_target[i] == nums[j]){
-                    return {i,j};
+            auto index = find(nums.begin(), nums.end(), num_target[i]);
+            
+            if(index != nums.end()) {
+                int ind = index - nums.begin();
+                if (ind != i) {
+                    return {i, ind};
                 }
             }
+        
         }
         return {};
     }
