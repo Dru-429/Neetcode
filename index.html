@@ -1,0 +1,1669 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Domain Trigger — Hand Sign Activation</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;800;900&family=Inter:wght@400;500;600;700&family=Noto+Sans+JP:wght@700;900&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #050406;
+        --panel: #0c0a0d;
+        --panel-2: #110d10;
+        --line: rgba(226, 23, 42, 0.25);
+        --line-soft: rgba(255, 255, 255, 0.06);
+        --red: #e2172a;
+        --red-bright: #ff3b4e;
+        --red-deep: #4c0a10;
+        --ink: #f3ece7;
+        --muted: #948d92;
+        --radius: 14px;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        margin: 0;
+        height: 100%;
+      }
+      body {
+        background:
+          radial-gradient(
+            1200px 600px at 15% -10%,
+            rgba(226, 23, 42, 0.07),
+            transparent 60%
+          ),
+          radial-gradient(
+            900px 500px at 100% 10%,
+            rgba(226, 23, 42, 0.05),
+            transparent 55%
+          ),
+          var(--bg);
+        color: var(--ink);
+        font-family: "Inter", sans-serif;
+        -webkit-font-smoothing: antialiased;
+      }
+      .wrap {
+        max-width: 1360px;
+        margin: 0 auto;
+        padding: 28px 28px 60px;
+      }
+
+      /* ---------- header ---------- */
+      header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding-bottom: 22px;
+        margin-bottom: 26px;
+        border-bottom: 1px solid var(--line-soft);
+      }
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+      }
+      .brand svg {
+        width: 42px;
+        height: 42px;
+        flex-shrink: 0;
+      }
+      .brand h1 {
+        font-family: "Cinzel", serif;
+        font-weight: 900;
+        font-size: 26px;
+        letter-spacing: 0.02em;
+        margin: 0;
+        line-height: 1;
+      }
+      .brand h1 span {
+        color: var(--red-bright);
+      }
+      .brand p {
+        margin: 6px 0 0;
+        font-size: 12.5px;
+        color: var(--muted);
+        letter-spacing: 0.03em;
+      }
+      .hdr-actions {
+        display: flex;
+        gap: 10px;
+      }
+      .icon-btn {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        background: transparent;
+        border: 1px solid var(--line-soft);
+        color: var(--muted);
+        font-family: "Inter", sans-serif;
+        font-size: 12.5px;
+        font-weight: 500;
+        padding: 9px 14px;
+        border-radius: 9px;
+        cursor: pointer;
+        transition: 0.15s ease;
+      }
+      .icon-btn:hover {
+        border-color: var(--line);
+        color: var(--ink);
+      }
+      .icon-btn svg {
+        width: 15px;
+        height: 15px;
+      }
+      .icon-btn.active {
+        color: var(--red-bright);
+        border-color: var(--line);
+      }
+
+      /* ---------- layout ---------- */
+      .grid {
+        display: grid;
+        grid-template-columns: 1fr 340px;
+        gap: 22px;
+        align-items: start;
+      }
+      @media (max-width: 960px) {
+        .grid {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      .stage-card {
+        position: relative;
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        background: var(--panel);
+        overflow: hidden;
+        aspect-ratio: 16/10;
+      }
+      #stage {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        display: block;
+        background: #000;
+      }
+
+      .live-badge {
+        position: absolute;
+        top: 16px;
+        left: 16px;
+        z-index: 5;
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        background: rgba(0, 0, 0, 0.55);
+        border: 1px solid var(--line);
+        padding: 6px 12px;
+        border-radius: 7px;
+        font-size: 11.5px;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        backdrop-filter: blur(4px);
+      }
+      .live-dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: var(--red-bright);
+        box-shadow: 0 0 8px var(--red-bright);
+        animation: pulse 1.4s infinite;
+      }
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.35;
+        }
+      }
+
+      .cam-toggle {
+        position: absolute;
+        bottom: 16px;
+        left: 16px;
+        z-index: 5;
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        background: rgba(0, 0, 0, 0.55);
+        border: 1px solid var(--line-soft);
+        padding: 8px 14px;
+        border-radius: 999px;
+        font-size: 12.5px;
+        backdrop-filter: blur(4px);
+        cursor: pointer;
+        color: var(--ink);
+      }
+      .cam-toggle svg {
+        width: 15px;
+        height: 15px;
+      }
+      .cam-toggle .state {
+        font-weight: 700;
+        color: var(--red-bright);
+      }
+
+      .status-pill {
+        position: absolute;
+        bottom: 16px;
+        right: 16px;
+        z-index: 5;
+        max-width: min(58%, 380px);
+        background: rgba(0, 0, 0, 0.6);
+        border: 1px solid var(--line);
+        border-radius: 11px;
+        padding: 12px 16px;
+        backdrop-filter: blur(4px);
+      }
+      .status-pill .label {
+        font-size: 10.5px;
+        letter-spacing: 0.12em;
+        color: var(--muted);
+        text-transform: uppercase;
+      }
+      .status-pill .msg {
+        font-size: 14px;
+        font-weight: 600;
+        margin-top: 3px;
+      }
+      .status-pill .bar {
+        margin-top: 9px;
+        height: 4px;
+        border-radius: 3px;
+        background: rgba(255, 255, 255, 0.08);
+        overflow: hidden;
+      }
+      .status-pill .bar-fill {
+        height: 100%;
+        width: 0%;
+        background: linear-gradient(90deg, var(--red-deep), var(--red-bright));
+        transition: width 0.08s linear;
+      }
+
+      .start-overlay {
+        position: absolute;
+        inset: 0;
+        z-index: 8;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 16px;
+        background:
+          radial-gradient(
+            600px 400px at 50% 40%,
+            rgba(226, 23, 42, 0.08),
+            transparent
+          ),
+          #08070a;
+        text-align: center;
+        padding: 20px;
+      }
+      .start-overlay svg {
+        width: 52px;
+        height: 52px;
+        opacity: 0.6;
+      }
+      .start-overlay h3 {
+        font-family: "Cinzel", serif;
+        font-size: 19px;
+        margin: 0;
+        font-weight: 700;
+      }
+      .start-overlay p {
+        font-size: 13px;
+        color: var(--muted);
+        max-width: 340px;
+        margin: 0;
+        line-height: 1.5;
+      }
+      .start-btn {
+        margin-top: 6px;
+        background: var(--red);
+        color: #fff;
+        border: none;
+        padding: 12px 26px;
+        border-radius: 9px;
+        font-family: "Inter", sans-serif;
+        font-weight: 700;
+        font-size: 14px;
+        letter-spacing: 0.02em;
+        cursor: pointer;
+        box-shadow: 0 0 24px rgba(226, 23, 42, 0.35);
+        transition: 0.15s ease;
+      }
+      .start-btn:hover {
+        background: var(--red-bright);
+      }
+      .start-overlay .fine {
+        font-size: 11px;
+        color: #5f5a5e;
+        max-width: 320px;
+      }
+      .hidden {
+        display: none !important;
+      }
+
+      .close-domain-btn {
+        position: absolute;
+        top: 16px;
+        right: 16px;
+        z-index: 6;
+        background: rgba(0, 0, 0, 0.6);
+        border: 1px solid var(--line);
+        color: var(--ink);
+        padding: 9px 15px;
+        border-radius: 9px;
+        font-size: 12.5px;
+        font-weight: 600;
+        cursor: pointer;
+      }
+      .close-domain-btn:hover {
+        border-color: var(--red-bright);
+        color: var(--red-bright);
+      }
+
+      /* ---------- sidebar ---------- */
+      .panel {
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        background: var(--panel);
+        padding: 18px 18px 20px;
+        margin-bottom: 18px;
+      }
+      .panel h2 {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 11.5px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--muted);
+        margin: 0 0 16px;
+        font-weight: 600;
+      }
+      .panel h2 svg {
+        width: 14px;
+        height: 14px;
+        color: var(--red-bright);
+      }
+
+      .steps {
+        display: flex;
+        gap: 10px;
+      }
+      .step {
+        flex: 1;
+        text-align: center;
+        padding: 12px 6px;
+        border-radius: 10px;
+        border: 1px solid transparent;
+        transition: 0.2s ease;
+      }
+      .step.active {
+        border-color: var(--line);
+        background: rgba(226, 23, 42, 0.06);
+      }
+      .step .ic {
+        width: 32px;
+        height: 32px;
+        margin: 0 auto 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+        border: 1px solid var(--line-soft);
+        color: var(--muted);
+      }
+      .step.active .ic {
+        color: var(--red-bright);
+        border-color: var(--line);
+        box-shadow: 0 0 14px rgba(226, 23, 42, 0.25);
+      }
+      .step .ic svg {
+        width: 16px;
+        height: 16px;
+      }
+      .step .no {
+        font-size: 9.5px;
+        letter-spacing: 0.1em;
+        color: var(--muted);
+        font-weight: 700;
+      }
+      .step.active .no {
+        color: var(--red-bright);
+      }
+      .step .t {
+        font-size: 11px;
+        color: var(--ink);
+        margin-top: 3px;
+        line-height: 1.3;
+      }
+
+      .sign-ref {
+        display: flex;
+        justify-content: center;
+        padding: 6px 0 4px;
+      }
+      .sign-ref svg {
+        width: 150px;
+        height: 130px;
+      }
+      .sign-note {
+        font-size: 12px;
+        color: var(--muted);
+        text-align: center;
+        line-height: 1.5;
+        margin-top: 6px;
+      }
+
+      .domain-status {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+      }
+      .kanji-ring {
+        position: relative;
+        width: 74px;
+        height: 74px;
+        flex-shrink: 0;
+      }
+      .kanji-ring svg {
+        width: 100%;
+        height: 100%;
+      }
+      .kanji-ring .kj {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: "Noto Sans JP", sans-serif;
+        font-weight: 900;
+        font-size: 26px;
+        color: var(--red-bright);
+        text-shadow: 0 0 14px rgba(226, 23, 42, 0.8);
+      }
+      .ds-text .t1 {
+        font-size: 13.5px;
+        font-weight: 700;
+        color: var(--red-bright);
+        letter-spacing: 0.02em;
+      }
+      .ds-text .t2 {
+        font-size: 12px;
+        color: var(--muted);
+        margin-top: 4px;
+        line-height: 1.5;
+      }
+      .dots {
+        display: flex;
+        gap: 5px;
+        margin-top: 10px;
+      }
+      .dots span {
+        width: 5px;
+        height: 5px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.15);
+      }
+      .dots span.on {
+        background: var(--red-bright);
+        box-shadow: 0 0 6px var(--red-bright);
+      }
+
+      footer {
+        text-align: center;
+        margin-top: 36px;
+        font-size: 11.5px;
+        color: #5f5a5e;
+      }
+      footer a {
+        color: var(--muted);
+      }
+
+      /* dialogs */
+      dialog {
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        background: var(--panel-2);
+        color: var(--ink);
+        padding: 26px;
+        width: min(420px, 90vw);
+        font-family: "Inter", sans-serif;
+      }
+      dialog::backdrop {
+        background: rgba(0, 0, 0, 0.7);
+        backdrop-filter: blur(2px);
+      }
+      dialog h3 {
+        font-family: "Cinzel", serif;
+        margin: 0 0 14px;
+        font-size: 18px;
+      }
+      dialog p {
+        font-size: 13.5px;
+        color: var(--muted);
+        line-height: 1.6;
+      }
+      dialog label {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-size: 13px;
+        margin: 16px 0 6px;
+      }
+      dialog input[type="range"] {
+        width: 100%;
+        accent-color: var(--red-bright);
+      }
+      dialog .row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin: 16px 0;
+      }
+      .toggle {
+        position: relative;
+        width: 38px;
+        height: 21px;
+      }
+      .toggle input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+      }
+      .toggle .track {
+        position: absolute;
+        inset: 0;
+        background: rgba(255, 255, 255, 0.15);
+        border-radius: 20px;
+        cursor: pointer;
+        transition: 0.2s;
+      }
+      .toggle .track:before {
+        content: "";
+        position: absolute;
+        width: 15px;
+        height: 15px;
+        left: 3px;
+        top: 3px;
+        background: #fff;
+        border-radius: 50%;
+        transition: 0.2s;
+      }
+      .toggle input:checked + .track {
+        background: var(--red);
+      }
+      .toggle input:checked + .track:before {
+        transform: translateX(17px);
+      }
+      dialog .close-x {
+        position: absolute;
+        top: 16px;
+        right: 18px;
+        background: none;
+        border: none;
+        color: var(--muted);
+        font-size: 20px;
+        cursor: pointer;
+      }
+      dialog ol,
+      dialog ul {
+        font-size: 13px;
+        color: var(--ink);
+        padding-left: 18px;
+        line-height: 1.8;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <header>
+        <div class="brand">
+          <svg viewBox="0 0 48 48" fill="none">
+            <rect x="6" y="10" width="4" height="30" fill="var(--red)" />
+            <rect x="38" y="10" width="4" height="30" fill="var(--red)" />
+            <rect x="3" y="9" width="42" height="4" fill="var(--red-bright)" />
+            <rect x="8" y="17" width="32" height="3.5" fill="var(--red)" />
+          </svg>
+          <div>
+            <h1>DOMAIN <span>TRIGGER</span></h1>
+            <p>Show the sign. Hold steady. Unleash the field.</p>
+          </div>
+        </div>
+        <div class="hdr-actions">
+          <button class="icon-btn active" id="soundBtn">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path d="M11 5 6 9H3v6h3l5 4V5Z" />
+              <path d="M16 8a5 5 0 0 1 0 8M19 5a9 9 0 0 1 0 14" />
+            </svg>
+            <span id="soundLabel">Sound On</span>
+          </button>
+          <button class="icon-btn" id="helpBtn">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <circle cx="12" cy="12" r="9" />
+              <path d="M9.5 9a2.5 2.5 0 0 1 5 0c0 1.7-2.5 2-2.5 4" />
+              <line x1="12" y1="17" x2="12" y2="17.01" />
+            </svg>
+            Help
+          </button>
+          <button class="icon-btn" id="settingsBtn">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <circle cx="12" cy="12" r="3" />
+              <path
+                d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"
+              />
+            </svg>
+            Settings
+          </button>
+        </div>
+      </header>
+
+      <div class="grid">
+        <!-- stage -->
+        <div class="stage-card" id="stageCard">
+          <canvas id="stage"></canvas>
+          <video id="video" autoplay playsinline muted class="hidden"></video>
+
+          <div class="live-badge" id="liveBadge">
+            <span class="live-dot"></span>LIVE
+          </div>
+          <button class="cam-toggle" id="camToggle">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path d="M23 7l-7 5 7 5V7z" />
+              <rect x="1" y="5" width="15" height="14" rx="2" />
+            </svg>
+            Camera: <span class="state" id="camState">Off</span>
+          </button>
+          <div class="status-pill" id="statusPill">
+            <div class="label">Status</div>
+            <div class="msg" id="statusMsg">Waiting to start</div>
+            <div class="bar"><div class="bar-fill" id="statusBar"></div></div>
+          </div>
+          <button class="close-domain-btn hidden" id="closeDomainBtn">
+            Close Domain
+          </button>
+
+          <div class="start-overlay" id="startOverlay">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.6"
+            >
+              <path d="M23 7l-7 5 7 5V7z" />
+              <rect x="1" y="5" width="15" height="14" rx="2" />
+            </svg>
+            <h3>Enable your camera to begin</h3>
+            <p>
+              We'll watch for the two-handed sign shown on the right. Hold it
+              steady for a moment to open the domain.
+            </p>
+            <button class="start-btn" id="startBtn">Enable Camera</button>
+            <p class="fine">
+              Video is processed locally in your browser for gesture tracking.
+              Nothing is recorded or uploaded.
+            </p>
+          </div>
+        </div>
+
+        <!-- sidebar -->
+        <div class="sidebar">
+          <div class="panel">
+            <h2>
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path d="M13 2 3 14h7l-1 8 11-14h-7l1-6z" /></svg
+              >How it works
+            </h2>
+            <div class="steps">
+              <div class="step active" id="step1">
+                <div class="ic">
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <path
+                      d="M9 11V6a2 2 0 1 1 4 0v5M13 11V4a2 2 0 1 1 4 0v9M17 11.5V8a2 2 0 1 1 4 0v6a7 7 0 0 1-7 7h-1a7 7 0 0 1-6-3.4L4.5 13a1.7 1.7 0 0 1 2.6-2.2L9 13"
+                    />
+                  </svg>
+                </div>
+                <div class="no">STEP 1</div>
+                <div class="t">Make the sign</div>
+              </div>
+              <div class="step" id="step2">
+                <div class="ic">
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <circle cx="12" cy="12" r="3" />
+                    <path
+                      d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"
+                    />
+                  </svg>
+                </div>
+                <div class="no">STEP 2</div>
+                <div class="t">Hold steady</div>
+              </div>
+              <div class="step" id="step3">
+                <div class="ic">
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <rect x="4" y="4" width="16" height="16" rx="2" />
+                    <path d="M4 9h16M9 4v16" />
+                  </svg>
+                </div>
+                <div class="no">STEP 3</div>
+                <div class="t">Domain opens</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel">
+            <h2>
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path
+                  d="M9 11V6a2 2 0 1 1 4 0v5M13 11V4a2 2 0 1 1 4 0v9M17 11.5V8a2 2 0 1 1 4 0v6a7 7 0 0 1-7 7h-1a7 7 0 0 1-6-3.4L4.5 13a1.7 1.7 0 0 1 2.6-2.2L9 13"
+                /></svg
+              >Reference sign
+            </h2>
+            <div class="sign-ref">
+              <svg viewBox="0 0 200 170" fill="none">
+                <path
+                  d="M100 12 L55 100 Q52 118 68 122 L70 108 Q80 96 100 96"
+                  stroke="#f3ece7"
+                  stroke-width="2"
+                  fill="rgba(243,236,231,0.06)"
+                  stroke-linejoin="round"
+                />
+                <path
+                  d="M100 12 L145 100 Q148 118 132 122 L130 108 Q120 96 100 96"
+                  stroke="#f3ece7"
+                  stroke-width="2"
+                  fill="rgba(243,236,231,0.06)"
+                  stroke-linejoin="round"
+                />
+                <path
+                  d="M55 100 L38 150 Q38 160 48 160 L64 130"
+                  stroke="#f3ece7"
+                  stroke-width="2"
+                  fill="rgba(243,236,231,0.06)"
+                  stroke-linejoin="round"
+                />
+                <path
+                  d="M145 100 L162 150 Q162 160 152 160 L136 130"
+                  stroke="#f3ece7"
+                  stroke-width="2"
+                  fill="rgba(243,236,231,0.06)"
+                  stroke-linejoin="round"
+                />
+                <circle cx="100" cy="14" r="3" fill="var(--red-bright)" />
+              </svg>
+            </div>
+            <p class="sign-note">
+              Bring both palms together. Fingertips touch at the top, thumbs
+              tucked in, wrists joined below.
+            </p>
+          </div>
+
+          <div class="panel">
+            <h2>
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <circle cx="12" cy="12" r="9" /></svg
+              >Domain status
+            </h2>
+            <div class="domain-status">
+              <div class="kanji-ring">
+                <svg viewBox="0 0 100 100">
+                  <circle
+                    cx="50"
+                    cy="50"
+                    r="44"
+                    stroke="rgba(226,23,42,.25)"
+                    stroke-width="2"
+                    fill="none"
+                  />
+                  <circle
+                    id="ringProgress"
+                    cx="50"
+                    cy="50"
+                    r="44"
+                    stroke="var(--red-bright)"
+                    stroke-width="3"
+                    fill="none"
+                    stroke-dasharray="276"
+                    stroke-dashoffset="276"
+                    stroke-linecap="round"
+                    transform="rotate(-90 50 50)"
+                  />
+                </svg>
+                <div class="kj">域</div>
+              </div>
+              <div class="ds-text">
+                <div class="t1" id="dsTitle">Domain Ready</div>
+                <div class="t2" id="dsSub">
+                  Enable your camera to begin tracking.
+                </div>
+                <div class="dots">
+                  <span id="d1"></span><span id="d2"></span
+                  ><span id="d3"></span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <footer>
+        Fan-made interactive demo &middot; runs entirely in your browser
+        &middot; <a href="#" id="helpLink">how it works</a>
+      </footer>
+    </div>
+
+    <!-- dialogs -->
+    <dialog id="helpDialog">
+      <button class="close-x" data-close>&times;</button>
+      <h3>How this works</h3>
+      <p>
+        Your camera tracks your hand positions locally in the browser using
+        on-device hand tracking. Nothing is streamed or saved anywhere.
+      </p>
+      <ol>
+        <li>Click <strong>Enable Camera</strong> and allow access.</li>
+        <li>
+          Bring both hands up and form the sign shown in the reference panel —
+          fingertips touching at the top, wrists together below.
+        </li>
+        <li>
+          Hold the shape steady. The ring around the kanji fills as you hold it.
+        </li>
+        <li>
+          Once full, the domain opens behind you. Click
+          <strong>Close Domain</strong> to reset.
+        </li>
+      </ol>
+      <p>
+        If detection feels too strict or too loose, adjust it from Settings.
+      </p>
+    </dialog>
+
+    <dialog id="settingsDialog">
+      <button class="close-x" data-close>&times;</button>
+      <h3>Settings</h3>
+      <div class="row">
+        <span>Mirror camera</span>
+        <div class="toggle">
+          <input type="checkbox" id="mirrorToggle" checked /><label
+            class="track"
+            for="mirrorToggle"
+          ></label>
+        </div>
+      </div>
+      <div class="row">
+        <span>Sound</span>
+        <div class="toggle">
+          <input type="checkbox" id="soundToggle" checked /><label
+            class="track"
+            for="soundToggle"
+          ></label>
+        </div>
+      </div>
+      <label>Gesture sensitivity <span id="sensVal">Balanced</span></label>
+      <input type="range" id="sensSlider" min="0" max="100" value="50" />
+      <label>Hold duration <span id="holdVal">1.4s</span></label>
+      <input
+        type="range"
+        id="holdSlider"
+        min="800"
+        max="2600"
+        value="1400"
+        step="100"
+      />
+    </dialog>
+
+    <!-- ============ MediaPipe (loaded from CDN, runs fully in the visitor's browser) ============ -->
+    <script
+      src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"
+      crossorigin="anonymous"
+    ></script>
+    <script>
+      (function () {
+        "use strict";
+
+        /* ---------------- DOM refs ---------------- */
+        const stageCard = document.getElementById("stageCard");
+        const canvas = document.getElementById("stage");
+        const ctx = canvas.getContext("2d");
+        const video = document.getElementById("video");
+        const startOverlay = document.getElementById("startOverlay");
+        const startBtn = document.getElementById("startBtn");
+        const camToggle = document.getElementById("camToggle");
+        const camState = document.getElementById("camState");
+        const statusMsg = document.getElementById("statusMsg");
+        const statusBar = document.getElementById("statusBar");
+        const closeDomainBtn = document.getElementById("closeDomainBtn");
+        const dsTitle = document.getElementById("dsTitle");
+        const dsSub = document.getElementById("dsSub");
+        const ringProgress = document.getElementById("ringProgress");
+        const dots = [
+          document.getElementById("d1"),
+          document.getElementById("d2"),
+          document.getElementById("d3"),
+        ];
+        const steps = [
+          document.getElementById("step1"),
+          document.getElementById("step2"),
+          document.getElementById("step3"),
+        ];
+        const soundBtn = document.getElementById("soundBtn");
+        const soundLabel = document.getElementById("soundLabel");
+        const helpBtn = document.getElementById("helpBtn");
+        const helpLink = document.getElementById("helpLink");
+        const settingsBtn = document.getElementById("settingsBtn");
+        const helpDialog = document.getElementById("helpDialog");
+        const settingsDialog = document.getElementById("settingsDialog");
+        const mirrorToggle = document.getElementById("mirrorToggle");
+        const soundToggle = document.getElementById("soundToggle");
+        const sensSlider = document.getElementById("sensSlider");
+        const sensVal = document.getElementById("sensVal");
+        const holdSlider = document.getElementById("holdSlider");
+        const holdVal = document.getElementById("holdVal");
+
+        document.querySelectorAll("dialog [data-close]").forEach((b) => {
+          b.addEventListener("click", () => b.closest("dialog").close());
+        });
+        helpBtn.addEventListener("click", () => helpDialog.showModal());
+        helpLink.addEventListener("click", (e) => {
+          e.preventDefault();
+          helpDialog.showModal();
+        });
+        settingsBtn.addEventListener("click", () => settingsDialog.showModal());
+
+        /* ---------------- config ---------------- */
+        const cfg = {
+          mirror: true,
+          sound: true,
+          sensitivity: 0.5, // 0 loose .. 1 strict
+          holdMs: 1400,
+        };
+        mirrorToggle.addEventListener(
+          "change",
+          () => (cfg.mirror = mirrorToggle.checked),
+        );
+        soundToggle.addEventListener("change", () => {
+          cfg.sound = soundToggle.checked;
+          syncSoundBtn();
+        });
+        sensSlider.addEventListener("input", () => {
+          cfg.sensitivity = +sensSlider.value / 100;
+          sensVal.textContent =
+            cfg.sensitivity < 0.34
+              ? "Loose"
+              : cfg.sensitivity > 0.66
+                ? "Strict"
+                : "Balanced";
+        });
+        holdSlider.addEventListener("input", () => {
+          cfg.holdMs = +holdSlider.value;
+          holdVal.textContent = (cfg.holdMs / 1000).toFixed(1) + "s";
+        });
+        function syncSoundBtn() {
+          soundBtn.classList.toggle("active", cfg.sound);
+          soundLabel.textContent = cfg.sound ? "Sound On" : "Sound Off";
+          soundToggle.checked = cfg.sound;
+        }
+        soundBtn.addEventListener("click", () => {
+          cfg.sound = !cfg.sound;
+          syncSoundBtn();
+        });
+        syncSoundBtn();
+
+        /* ---------------- state machine ---------------- */
+        const PHASE = {
+          IDLE: "idle",
+          TRACKING: "tracking",
+          HOLDING: "holding",
+          ACTIVATED: "activated",
+        };
+        const state = { phase: PHASE.IDLE, holdStart: 0, progress: 0 };
+
+        function setDots(n) {
+          dots.forEach((d, i) => d.classList.toggle("on", i < n));
+        }
+        function setActiveStep(i) {
+          steps.forEach((s, idx) => s.classList.toggle("active", idx === i));
+        }
+
+        function updateStatusUI() {
+          switch (state.phase) {
+            case PHASE.IDLE:
+              statusMsg.textContent = "Show your hands";
+              statusBar.style.width = "0%";
+              dsTitle.textContent = "Domain Ready";
+              dsSub.textContent = "Bring both hands into frame to begin.";
+              setDots(0);
+              setActiveStep(0);
+              ringProgress.style.strokeDashoffset = 276;
+              closeDomainBtn.classList.add("hidden");
+              break;
+            case PHASE.TRACKING:
+              statusMsg.textContent = "Hands detected — align the sign";
+              statusBar.style.width = "8%";
+              dsTitle.textContent = "Aligning";
+              dsSub.textContent =
+                "Bring fingertips together at the top, wrists joined below.";
+              setDots(1);
+              setActiveStep(1);
+              ringProgress.style.strokeDashoffset = 276;
+              break;
+            case PHASE.HOLDING: {
+              const pct = Math.min(1, state.progress);
+              statusMsg.textContent = "Holding sign — keep steady";
+              statusBar.style.width = 10 + pct * 90 + "%";
+              dsTitle.textContent = `Charging ${(pct * 100) | 0}%`;
+              dsSub.textContent = "Do not break the sign.";
+              setDots(2);
+              setActiveStep(1);
+              ringProgress.style.strokeDashoffset = 276 * (1 - pct);
+              break;
+            }
+            case PHASE.ACTIVATED:
+              statusMsg.textContent = "Domain active";
+              statusBar.style.width = "100%";
+              dsTitle.textContent = "Domain Activated";
+              dsSub.textContent = "The field is open around you.";
+              setDots(3);
+              setActiveStep(2);
+              ringProgress.style.strokeDashoffset = 0;
+              closeDomainBtn.classList.remove("hidden");
+              break;
+          }
+        }
+        updateStatusUI();
+
+        closeDomainBtn.addEventListener("click", () => {
+          state.phase = PHASE.TRACKING;
+          state.progress = 0;
+          stopDrone();
+          updateStatusUI();
+        });
+
+        /* ---------------- audio ---------------- */
+        let actx = null,
+          droneNodes = null;
+        function ensureAudio() {
+          if (!actx)
+            actx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        function playBoom() {
+          if (!cfg.sound) return;
+          ensureAudio();
+          const t0 = actx.currentTime;
+          // low sine thump
+          const osc = actx.createOscillator();
+          const g = actx.createGain();
+          osc.type = "sine";
+          osc.frequency.setValueAtTime(180, t0);
+          osc.frequency.exponentialRampToValueAtTime(40, t0 + 0.8);
+          g.gain.setValueAtTime(0.0001, t0);
+          g.gain.exponentialRampToValueAtTime(0.9, t0 + 0.04);
+          g.gain.exponentialRampToValueAtTime(0.0001, t0 + 1.1);
+          osc.connect(g).connect(actx.destination);
+          osc.start(t0);
+          osc.stop(t0 + 1.2);
+          // noise burst
+          const bufferSize = actx.sampleRate * 0.6;
+          const buffer = actx.createBuffer(1, bufferSize, actx.sampleRate);
+          const data = buffer.getChannelData(0);
+          for (let i = 0; i < bufferSize; i++)
+            data[i] = (Math.random() * 2 - 1) * (1 - i / bufferSize);
+          const noise = actx.createBufferSource();
+          noise.buffer = buffer;
+          const nf = actx.createBiquadFilter();
+          nf.type = "bandpass";
+          nf.frequency.value = 900;
+          const ng = actx.createGain();
+          ng.gain.setValueAtTime(0.5, t0);
+          ng.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.6);
+          noise.connect(nf).connect(ng).connect(actx.destination);
+          noise.start(t0);
+        }
+        function startDrone() {
+          if (!cfg.sound) return;
+          ensureAudio();
+          if (droneNodes) return;
+          const osc = actx.createOscillator();
+          osc.type = "sawtooth";
+          osc.frequency.value = 55;
+          const lfo = actx.createOscillator();
+          lfo.frequency.value = 0.15;
+          const lfoGain = actx.createGain();
+          lfoGain.gain.value = 8;
+          lfo.connect(lfoGain).connect(osc.frequency);
+          const filt = actx.createBiquadFilter();
+          filt.type = "lowpass";
+          filt.frequency.value = 220;
+          const g = actx.createGain();
+          g.gain.value = 0.0001;
+          osc.connect(filt).connect(g).connect(actx.destination);
+          osc.start();
+          lfo.start();
+          g.gain.exponentialRampToValueAtTime(0.12, actx.currentTime + 1.2);
+          droneNodes = { osc, lfo, g };
+        }
+        function stopDrone() {
+          if (!droneNodes) return;
+          const { osc, lfo, g } = droneNodes;
+          const t0 = actx.currentTime;
+          g.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.6);
+          setTimeout(() => {
+            try {
+              osc.stop();
+              lfo.stop();
+            } catch (e) {}
+          }, 700);
+          droneNodes = null;
+        }
+
+        /* ---------------- camera + canvas sizing ---------------- */
+        let W = 1280,
+          H = 800,
+          DPR = Math.min(2, window.devicePixelRatio || 1);
+        function resizeCanvas() {
+          const rect = stageCard.getBoundingClientRect();
+          W = Math.round(rect.width);
+          H = Math.round(rect.height);
+          canvas.width = W * DPR;
+          canvas.height = H * DPR;
+          canvas.style.width = W + "px";
+          canvas.style.height = H + "px";
+          ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+          mirrorCanvas.width = W;
+          mirrorCanvas.height = H;
+        }
+        const mirrorCanvas = document.createElement("canvas");
+        const mirrorCtx = mirrorCanvas.getContext("2d", {
+          willReadFrequently: false,
+        });
+        window.addEventListener("resize", resizeCanvas);
+        resizeCanvas();
+
+        let cameraOn = false;
+        async function initCamera() {
+          try {
+            const stream = await navigator.mediaDevices.getUserMedia({
+              video: { width: 1280, height: 720, facingMode: "user" },
+              audio: false,
+            });
+            video.srcObject = stream;
+            await video.play();
+            cameraOn = true;
+            startOverlay.classList.add("hidden");
+            camState.textContent = "On";
+            state.phase = PHASE.TRACKING;
+            updateStatusUI();
+            resizeCanvas();
+            requestAnimationFrame(loop);
+          } catch (err) {
+            statusMsg.textContent = "Camera access denied";
+            dsSub.textContent =
+              "Allow camera permissions in your browser to continue.";
+          }
+        }
+        startBtn.addEventListener("click", initCamera);
+        camToggle.addEventListener("click", () => {
+          if (!video.srcObject) {
+            initCamera();
+            return;
+          }
+          const tracks = video.srcObject.getVideoTracks();
+          cameraOn = !cameraOn;
+          tracks.forEach((t) => (t.enabled = cameraOn));
+          camState.textContent = cameraOn ? "On" : "Off";
+        });
+
+        /* ---------------- MediaPipe setup ---------------- */
+        let latestHands = [];
+        let handsBusy = false;
+
+        const hands = new Hands({
+          locateFile: (f) =>
+            `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${f}`,
+        });
+        hands.setOptions({
+          maxNumHands: 2,
+          modelComplexity: 1,
+          minDetectionConfidence: 0.6,
+          minTrackingConfidence: 0.5,
+        });
+        hands.onResults((results) => {
+          latestHands = results.multiHandLandmarks || [];
+          handsBusy = false;
+        });
+
+        /* ---------------- gesture detection ---------------- */
+        function dist(a, b) {
+          const dx = a.x - b.x,
+            dy = a.y - b.y;
+          return Math.sqrt(dx * dx + dy * dy);
+        }
+
+        function evaluateGesture(handsArr) {
+          if (!handsArr || handsArr.length < 2)
+            return { matched: false, count: handsArr ? handsArr.length : 0 };
+          const [h1, h2] = handsArr;
+          const size1 = dist(h1[0], h1[9]) || 0.001;
+          const size2 = dist(h2[0], h2[9]) || 0.001;
+          const scale = (size1 + size2) / 2;
+
+          const indexDist = dist(h1[8], h2[8]) / scale;
+          const middleDist = dist(h1[12], h2[12]) / scale;
+          const wristDist = dist(h1[0], h2[0]) / scale;
+
+          const s = cfg.sensitivity; // 0 loose .. 1 strict
+          const indexThresh = 0.75 - s * 0.4; // 0.75 .. 0.35
+          const middleThresh = 0.95 - s * 0.5; // 0.95 .. 0.45
+          const wristThresh = 2.3 - s * 0.9; // 2.3  .. 1.4
+
+          const matched =
+            indexDist < indexThresh &&
+            middleDist < middleThresh &&
+            wristDist < wristThresh;
+          return { matched, count: 2, indexDist, middleDist, wristDist };
+        }
+
+        /* ---------------- background FX (drawn behind the segmented person) ---------------- */
+        let embers = [];
+        let debris = [];
+        let boltFlash = 0;
+        let lastBoltTime = 0;
+        let startTime = performance.now();
+
+        function initDebris() {
+          debris = [];
+          for (let i = 0; i < 7; i++) {
+            debris.push({
+              x: Math.random(),
+              y: 0.15 + Math.random() * 0.55,
+              r: 10 + Math.random() * 22,
+              rot: Math.random() * Math.PI * 2,
+              spin: (Math.random() - 0.5) * 0.15,
+              bob: Math.random() * Math.PI * 2,
+              speed: 0.3 + Math.random() * 0.4,
+            });
+          }
+        }
+        initDebris();
+
+        function spawnEmbers(n, W, H) {
+          for (let i = 0; i < n; i++) {
+            embers.push({
+              x: Math.random() * W,
+              y: H * (0.8 + Math.random() * 0.2),
+              vy: 0.4 + Math.random() * 1.1,
+              vx: (Math.random() - 0.5) * 0.4,
+              life: 0,
+              maxLife: 60 + Math.random() * 90,
+              size: 1.5 + Math.random() * 3,
+            });
+          }
+        }
+
+        function drawTorii(g, W, H, intensity) {
+          if (intensity <= 0.01) return;
+          const cx = W * 0.5,
+            topY = H * 0.06,
+            botY = H * 0.98;
+          const legGap = W * 0.34;
+          g.save();
+          g.globalAlpha = Math.min(1, intensity) * 0.9;
+          g.strokeStyle = "rgba(226,23,42,0.9)";
+          g.shadowColor = "rgba(226,23,42,0.9)";
+          g.shadowBlur = 24;
+          g.lineWidth = 5;
+          // legs
+          g.beginPath();
+          g.moveTo(cx - legGap, topY + H * 0.1);
+          g.lineTo(cx - legGap, botY);
+          g.stroke();
+          g.beginPath();
+          g.moveTo(cx + legGap, topY + H * 0.1);
+          g.lineTo(cx + legGap, botY);
+          g.stroke();
+          // top curved beam
+          g.lineWidth = 9;
+          g.beginPath();
+          g.moveTo(cx - legGap * 1.22, topY + H * 0.08);
+          g.quadraticCurveTo(
+            cx,
+            topY - H * 0.03,
+            cx + legGap * 1.22,
+            topY + H * 0.08,
+          );
+          g.stroke();
+          // second beam
+          g.lineWidth = 6;
+          g.beginPath();
+          g.moveTo(cx - legGap * 1.05, topY + H * 0.16);
+          g.lineTo(cx + legGap * 1.05, topY + H * 0.16);
+          g.stroke();
+          g.restore();
+        }
+
+        function drawKanji(g, W, H, intensity, t) {
+          if (intensity <= 0.02) return;
+          const cx = W * 0.5,
+            cy = H * 0.5;
+          const pulse = 1 + Math.sin(t * 1.4) * 0.03;
+          const size = Math.min(W, H) * 0.5 * pulse;
+          g.save();
+          g.globalAlpha = intensity * 0.16;
+          g.fillStyle = "#e2172a";
+          g.shadowColor = "#e2172a";
+          g.shadowBlur = 60;
+          g.font = `900 ${size}px 'Noto Sans JP', sans-serif`;
+          g.textAlign = "center";
+          g.textBaseline = "middle";
+          g.fillText("域", cx, cy);
+          g.restore();
+        }
+
+        function drawLightning(g, W, H, t) {
+          if (t - lastBoltTime > 1.6 + Math.random() * 1.8) {
+            lastBoltTime = t;
+            boltFlash = 1;
+          }
+          if (boltFlash <= 0.01) return;
+          g.save();
+          g.globalAlpha = boltFlash * 0.85;
+          g.strokeStyle = "rgba(255,120,130,0.9)";
+          g.shadowColor = "rgba(255,80,90,1)";
+          g.shadowBlur = 14;
+          g.lineWidth = 2;
+          const startX = W * (0.15 + Math.random() * 0.7);
+          let x = startX,
+            y = 0;
+          g.beginPath();
+          g.moveTo(x, y);
+          const segs = 7;
+          for (let i = 0; i < segs; i++) {
+            x += (Math.random() - 0.5) * W * 0.09;
+            y += (H * 0.5) / segs;
+            g.lineTo(x, y);
+          }
+          g.stroke();
+          g.restore();
+          boltFlash *= 0.86;
+        }
+
+        function drawEmbers(g, W, H, intensity) {
+          if (intensity > 0.08) spawnEmbers(Math.ceil(intensity * 2.2), W, H);
+          for (let i = embers.length - 1; i >= 0; i--) {
+            const e = embers[i];
+            e.y -= e.vy;
+            e.x += e.vx + Math.sin(e.life * 0.05) * 0.3;
+            e.life++;
+            const a = 1 - e.life / e.maxLife;
+            if (a <= 0) {
+              embers.splice(i, 1);
+              continue;
+            }
+            g.save();
+            g.globalAlpha = a * 0.85;
+            const grad = g.createRadialGradient(
+              e.x,
+              e.y,
+              0,
+              e.x,
+              e.y,
+              e.size * 3,
+            );
+            grad.addColorStop(0, "rgba(255,190,140,0.95)");
+            grad.addColorStop(1, "rgba(226,23,42,0)");
+            g.fillStyle = grad;
+            g.beginPath();
+            g.arc(e.x, e.y, e.size * 3, 0, Math.PI * 2);
+            g.fill();
+            g.restore();
+          }
+        }
+
+        function drawDebris(g, W, H, intensity, t) {
+          if (intensity < 0.35) return;
+          g.save();
+          g.globalAlpha = Math.min(1, (intensity - 0.35) / 0.5) * 0.8;
+          debris.forEach((d) => {
+            const x = d.x * W,
+              y = d.y * H + Math.sin(t * d.speed + d.bob) * 10;
+            d.rot += d.spin * 0.02;
+            g.save();
+            g.translate(x, y);
+            g.rotate(d.rot);
+            g.fillStyle = "#1a0b0d";
+            g.strokeStyle = "rgba(226,23,42,0.6)";
+            g.lineWidth = 1.5;
+            g.beginPath();
+            const pts = 6;
+            for (let i = 0; i < pts; i++) {
+              const a = (i / pts) * Math.PI * 2;
+              const rr = d.r * (0.7 + Math.sin(i * 2.1) * 0.2);
+              const px = Math.cos(a) * rr,
+                py = Math.sin(a) * rr;
+              i === 0 ? g.moveTo(px, py) : g.lineTo(px, py);
+            }
+            g.closePath();
+            g.fill();
+            g.stroke();
+            g.restore();
+          });
+          g.restore();
+        }
+
+        function drawSkulls(g, W, H, intensity) {
+          if (intensity < 0.45) return;
+          const a = Math.min(1, (intensity - 0.45) / 0.4);
+          const xs = [0.08, 0.22, 0.38, 0.62, 0.78, 0.92];
+          g.save();
+          g.globalAlpha = a * 0.75;
+          xs.forEach((fx, i) => {
+            const x = fx * W,
+              y = H * (0.9 + (i % 2) * 0.03);
+            const s = 14 + (i % 3) * 4;
+            g.save();
+            g.translate(x, y);
+            g.fillStyle = "#0c0a0c";
+            g.strokeStyle = "rgba(226,23,42,0.55)";
+            g.lineWidth = 1.2;
+            g.beginPath();
+            g.arc(0, 0, s, 0, Math.PI * 2);
+            g.fill();
+            g.stroke();
+            g.beginPath();
+            g.moveTo(-s * 0.5, s * 0.5);
+            g.lineTo(-s * 0.35, s * 1.1);
+            g.lineTo(s * 0.35, s * 1.1);
+            g.lineTo(s * 0.5, s * 0.5);
+            g.closePath();
+            g.fill();
+            g.stroke();
+            g.fillStyle = "rgba(226,23,42,0.85)";
+            g.beginPath();
+            g.arc(-s * 0.32, -s * 0.05, s * 0.16, 0, Math.PI * 2);
+            g.fill();
+            g.beginPath();
+            g.arc(s * 0.32, -s * 0.05, s * 0.16, 0, Math.PI * 2);
+            g.fill();
+            g.restore();
+          });
+          g.restore();
+        }
+
+        function drawBackgroundFX(g, W, H, intensity, t) {
+          if (intensity > 0.02) {
+            const grad = g.createRadialGradient(
+              W * 0.5,
+              H * 0.55,
+              H * 0.05,
+              W * 0.5,
+              H * 0.55,
+              H * 0.85,
+            );
+            grad.addColorStop(0, `rgba(60,6,10,${0.55 * intensity})`);
+            grad.addColorStop(1, `rgba(0,0,0,${0.85 * intensity})`);
+            g.save();
+            g.globalAlpha = 1;
+            g.fillStyle = grad;
+            g.fillRect(0, 0, W, H);
+            g.restore();
+          }
+          drawTorii(g, W, H, intensity);
+          drawKanji(g, W, H, intensity, t);
+          drawDebris(g, W, H, intensity, t);
+          if (intensity > 0.5) drawLightning(g, W, H, t);
+          drawEmbers(g, W, H, intensity);
+          drawSkulls(g, W, H, intensity);
+        }
+
+        /* ---------------- main render loop ---------------- */
+        function updateStateMachine(gest) {
+          const now = performance.now();
+          if (state.phase === PHASE.ACTIVATED) return; // stays until closed
+          if (gest.matched) {
+            if (state.phase !== PHASE.HOLDING) {
+              state.phase = PHASE.HOLDING;
+              state.holdStart = now;
+            }
+            state.progress = (now - state.holdStart) / cfg.holdMs;
+            if (state.progress >= 1) {
+              state.phase = PHASE.ACTIVATED;
+              state.progress = 1;
+              playBoom();
+              startDrone();
+            }
+          } else {
+            if (gest.count >= 1) {
+              state.phase = PHASE.TRACKING;
+            } else {
+              state.phase = cameraOn ? PHASE.TRACKING : PHASE.IDLE;
+            }
+            state.progress = Math.max(0, state.progress - 0.03);
+          }
+          updateStatusUI();
+        }
+
+        function drawHandGuides(g, handsArr, W, H) {
+          if (!handsArr || !handsArr.length) return;
+          g.save();
+          handsArr.forEach((h) => {
+            let minX = 1,
+              minY = 1,
+              maxX = 0,
+              maxY = 0;
+            h.forEach((p) => {
+              minX = Math.min(minX, p.x);
+              minY = Math.min(minY, p.y);
+              maxX = Math.max(maxX, p.x);
+              maxY = Math.max(maxY, p.y);
+            });
+            const x1 = minX * W - 14,
+              y1 = minY * H - 14,
+              x2 = maxX * W + 14,
+              y2 = maxY * H + 14;
+            g.strokeStyle = "rgba(226,23,42,0.85)";
+            g.lineWidth = 2;
+            const c = 16;
+            g.beginPath();
+            g.moveTo(x1, y1 + c);
+            g.lineTo(x1, y1);
+            g.lineTo(x1 + c, y1);
+            g.stroke();
+            g.beginPath();
+            g.moveTo(x2 - c, y1);
+            g.lineTo(x2, y1);
+            g.lineTo(x2, y1 + c);
+            g.stroke();
+            g.beginPath();
+            g.moveTo(x1, y2 - c);
+            g.lineTo(x1, y2);
+            g.lineTo(x1 + c, y2);
+            g.stroke();
+            g.beginPath();
+            g.moveTo(x2 - c, y2);
+            g.lineTo(x2, y2);
+            g.lineTo(x2, y2 - c);
+            g.stroke();
+          });
+          g.restore();
+        }
+
+        async function loop() {
+          if (video.readyState >= 2 && video.videoWidth) {
+            // draw (optionally mirrored) source frame
+            mirrorCtx.save();
+            if (cfg.mirror) {
+              mirrorCtx.translate(mirrorCanvas.width, 0);
+              mirrorCtx.scale(-1, 1);
+            }
+            mirrorCtx.drawImage(
+              video,
+              0,
+              0,
+              mirrorCanvas.width,
+              mirrorCanvas.height,
+            );
+            mirrorCtx.restore();
+
+            if (!handsBusy) {
+              handsBusy = true;
+              hands.send({ image: mirrorCanvas });
+            }
+            const gest = evaluateGesture(latestHands);
+            updateStateMachine(gest);
+
+            const t = (performance.now() - startTime) / 1000;
+            let intensity = 0;
+            if (state.phase === PHASE.HOLDING)
+              intensity = Math.min(0.85, state.progress * 0.85);
+            if (state.phase === PHASE.ACTIVATED)
+              intensity = 0.92 + Math.sin(t * 1.1) * 0.06;
+            if (state.phase === PHASE.TRACKING) intensity = 0.02;
+
+            ctx.clearRect(0, 0, W, H);
+            ctx.save();
+            ctx.fillStyle = "#000";
+            ctx.fillRect(0, 0, W, H);
+            ctx.restore();
+            ctx.drawImage(mirrorCanvas, 0, 0, W, H);
+            // Layer the animated domain over the live camera background.
+            drawBackgroundFX(ctx, W, H, intensity, t);
+
+            if (
+              state.phase === PHASE.TRACKING ||
+              state.phase === PHASE.HOLDING
+            ) {
+              // scale hand landmark coords (0..1 relative to mirrorCanvas) to stage size
+              drawHandGuides(ctx, latestHands, W, H);
+            }
+          }
+          requestAnimationFrame(loop);
+        }
+
+        resizeCanvas();
+      })();
+    </script>
+  </body>
+</html>
