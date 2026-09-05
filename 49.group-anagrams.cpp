@@ -11,19 +11,21 @@ using namespace std;
 class Solution {
 public:
     vector<vector<string>> groupAnagrams(vector<string>& strs) {
-    unordered_map<string, vector<string>> mp; 
+        unordered_map<string, vector<string>> mp;
+       
+        for (auto i:strs) {
+            string curr = i;
+            sort(curr.begin(), curr.end());
+            mp[curr].push_back(i);
+        }
 
-    for ( auto c : strs ){
-        string s = c;
-        sort(c.begin(), c.end()); 
-        mp[c].push_back(s); 
-    }
-    vector<vector<string>> res; 
-    for( auto it : mp ){
-        res.push_back(it.second);
-    }
-    return res; 
+        vector<vector<string>> res;
+
+        for( auto i:mp){
+            res.push_back(i.second);
+        }
+        
+        return res;
     }
 };
 // @lc code=end
-
